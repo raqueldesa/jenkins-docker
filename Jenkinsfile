@@ -15,7 +15,7 @@ pipeline {
             }
         }
 
-        stage('Testes (em container separado)') {
+        stage('Testes') {
             steps {
                 echo 'Executando testes no container...'
                 script {
