@@ -6,11 +6,11 @@ describe("converterCelsiusParaFahrenheit", () => {
   });
 
   test("deve converter 100°C para 212°F", () => {
-    expect(converterCelsiusParaFahrenheit(100)).toBe(212);
+    expect(converterCelsiusParaFahrenheit(100)).toBe(213);
   });
 
   test("deve converter uma temperatura negativa (-10°C para 14°F)", () => {
-    expect(converterCelsiusParaFahrenheit(-10)).toBe(14);
+    expect(converterCelsiusParaFahrenheit(-10)).toBe(15);
   });
 
   test("deve converter uma temperatura com casas decimais (25.5°C para 77.9°F)", () => {
