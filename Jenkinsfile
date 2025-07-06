@@ -1,44 +1,59 @@
-pipeline{
+pipeline {
     agent any
 
+    environment {
+        IMAGE_TAG = "raqueldesa/jenkins-docker:${env.BUILD_ID}"
+    }
+
     stages {
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
+                echo 'Build: Instalando dependências no container...'
                 script {
-                    dockerapp = docker.build("raqueldesa/jenkins-docker:${env.BUILD_ID}", '-f Dockerfile .')
+                    docker.build('build-image', '-f Dockerfile.build .')
                 }
-                echo 'Building docker image...'
             }
         }
-        stage('Push Docker Image') {
+
+        stage('Testes') {
             steps {
-                echo 'Pushing docker image...'
-                script{
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
-                        dockerapp.push('latest')
-                        dockerapp.push("${env.BUILD_ID}")
+                echo 'Executando testes no container...'
+                script {
+                    def testImage = docker.build('test-image', '-f Dockerfile.test .')
+
+                    testImage.inside {
+                        sh 'npm test'
                     }
                 }
             }
         }
-        stage('Deploy Application') {
-           
+
+        stage('Pushing to DockerHub') {
+            when {
+                expression { return currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+            }
             steps {
-                echo 'Deploying...'
-                // Add your deployment commands here
+                echo 'Push da imagem para o DockerHub...'
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+                        def appImage = docker.build("${IMAGE_TAG}", '-f Dockerfile .')
+                        appImage.push('latest')
+                        appImage.push("${env.BUILD_ID}")
+                    }
+                }
             }
         }
     }
 
-    // post {
-    //     always {
-    //         echo 'This will always run after the pipeline completes.'
-    //     }
-    //     success {
-    //         echo 'This will run only if the pipeline succeeds.'
-    //     }
-    //     failure {
-    //         echo 'This will run only if the pipeline fails.'
-    //     }
-    // }
+    post {
+        success {
+            echo 'Build e testes finalizados com sucesso!'
+        }
+        unstable {
+            echo 'Build foi instável (falha nos testes).'
+        }
+        failure {
+            echo 'Erro no processo de build.'
+        }
+    }
 }
