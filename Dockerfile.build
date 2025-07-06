@@ -4,4 +4,6 @@ WORKDIR /app
 
 COPY package*.json ./
 
+RUN exit 1
+
 RUN npm install
