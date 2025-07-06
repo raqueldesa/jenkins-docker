@@ -15,18 +15,16 @@ pipeline {
             }
         }
 
-        stage('Testes') {
+        stage('Testes (em container separado)') {
             steps {
                 echo 'Executando testes no container...'
                 script {
                     def testImage = docker.build('test-image', '-f Dockerfile.test .')
-
-                    testImage.inside {
-                        sh 'npm test'
-                    }
+                    sh "docker run --rm test-image npm test"
                 }
             }
         }
+
 
         stage('Pushing to DockerHub') {
             when {
