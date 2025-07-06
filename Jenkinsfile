@@ -4,14 +4,21 @@ pipeline{
     stages {
         stage('Build Docker Image') {
             steps {
+                script {
+                    dockerapp = docker.build("raqueldesa/jenkins-docker:${env.BUILD_ID}, '-f Dockerfile .'")
+                }
                 echo 'Building docker image...'
-                // Add your build commands here
             }
         }
         stage('Push Docker Image') {
             steps {
-                echo 'Testing...'
-                // Add your test commands here
+                echo 'Pushing docker image...'
+                script{
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+                        dockerapp.push('latest')
+                        dockerapp.push("${env.BUILD_ID}")
+                    }
+                }
             }
         }
         stage('Deploy Application') {
