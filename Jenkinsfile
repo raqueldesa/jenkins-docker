@@ -5,7 +5,7 @@ pipeline{
         stage('Build Docker Image') {
             steps {
                 script {
-                    dockerapp = docker.build("raqueldesa/jenkins-docker:${env.BUILD_ID}, '-f Dockerfile .'")
+                    dockerapp = docker.build("raqueldesa/jenkins-docker:${env.BUILD_ID}", '-f Dockerfile .')
                 }
                 echo 'Building docker image...'
             }
