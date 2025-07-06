@@ -20,7 +20,7 @@ pipeline {
                 echo 'Executando testes no container...'
                 script {
                     def testImage = docker.build('test-image', '-f Dockerfile.test .')
-                    sh "docker run --rm test-image npm test"
+                    bat "docker run --rm test-image npm test"
                 }
             }
         }
